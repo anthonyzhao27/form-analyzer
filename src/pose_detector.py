@@ -1,7 +1,7 @@
 import mediapipe as mp
 import cv2
 import numpy as np
-from typing import Optional
+from typing import Optional, Tuple
 
 class PoseDetector:
     def __init__(self):
@@ -89,11 +89,17 @@ class PoseDetector:
         self.mp_drawing.draw_landmarks(
             frame,
             results.pose_landmarks,
-            self.mp_pose.Pose.POSE_CONNECTIONS,
+            self.mp_pose.POSE_CONNECTIONS,
             landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style()
         )
         return frame
 
     def release(self):
-        self.pose.close()
-        print("MediaPipe pose object closed")
+        try:
+            if hasattr(self.pose, '_graph') and self.pose._graph is not None:
+                self.pose.close()
+                print("MediaPipe pose object closed")
+            else:
+                print("MediaPipe pose object already closed or not initialized")
+        except Exception as e:
+            print(f"Error closing MediaPipe pose object: {e}")
